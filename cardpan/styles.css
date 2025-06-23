@@ -100,9 +100,27 @@ body {
   font-size: 17px;
   line-height: 16px;
   letter-spacing: 4px;
-  color: #fff;
   text-shadow: 0 2px 9px #28313b30;
   white-space: nowrap;
+  -webkit-text-size-adjust: 100%;
+  -webkit-user-select: text;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+
+  /* disable iOS auto-link styling */
+  color: #fff !important;
+  text-decoration: none !important;
+}
+.card-number, .card-number * {
+  /* disable iOS credit card autofill styling */
+  -webkit-text-security: none !important;
+}
+
+a[href^="tel"], a[href^="sms"], a[href^="mailto"], a[href^="x-apple-data-detectors"] {
+  color: inherit !important;
+  text-decoration: none !important;
+  pointer-events: none !important;
+  cursor: default !important;
 }
 
 .copy-btn {
