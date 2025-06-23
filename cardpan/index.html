@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Credit Card UI</title>
+  <meta name="viewport" content="width=400, initial-scale=1.0">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <img src="background.jpg" class="bg-image" />
+  <div class="credit-card-modal">
+    <div class="credit-card">
+      <button class="close-btn" onclick="closeCard()">&times;</button>
+      <div class="card-content">
+        <div class="card-number-row">
+          <span id="cardNumber" class="card-number">4704 1111 2222 1233</span>
+          <button class="copy-btn" onclick="copyText('cardNumber')" title="Copy card number">
+            <svg width="10" height="12" viewBox="0 0 10 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M7.8846 9.8096H7.11537V10.5642H0.769229V2.82976H1.53846V2.07519H0V11.3188H7.8846V9.8096Z" fill="white"/>
+              <path d="M2.30765 0V9.05493H9.99994V3.23933L6.69771 0H2.30765ZM9.23071 8.30035H3.07688V0.754577H5.57687V4.33882H9.23071V8.30035ZM9.23071 3.58424H6.3461V0.754577H6.37908L9.23071 3.55187V3.58424Z" fill="white"/>
+              </svg>              
+          </button>
+        </div>
+        <div class="card-bottom-row">
+          <div class="card-expiry">
+            <span id="cardExpiry">09/24</span>
+            <button class="copy-btn" onclick="copyText('cardExpiry')" title="Copy expiry">
+              <svg width="10" height="12" viewBox="0 0 10 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M7.8846 9.8096H7.11537V10.5642H0.769229V2.82976H1.53846V2.07519H0V11.3188H7.8846V9.8096Z" fill="white"/>
+                <path d="M2.30765 0V9.05493H9.99994V3.23933L6.69771 0H2.30765ZM9.23071 8.30035H3.07688V0.754577H5.57687V4.33882H9.23071V8.30035ZM9.23071 3.58424H6.3461V0.754577H6.37908L9.23071 3.55187V3.58424Z" fill="white"/>
+                </svg>     
+            </button>
+          </div>
+          <div class="card-cvv">
+            <span id="cvvLabel" class="cvv-label">CVV</span>
+            <button class="cvv-eye" onclick="toggleCVV()" aria-label="Show/hide CVV">
+              <svg id="eyeIcon" width="16" height="10" viewBox="0 0 16 10" fill="none">
+                <path d="M8.34129 2.90865C10.0451 2.90865 11.4263 4.30963 11.4263 6.03783C11.4263 7.76603 10.0451 9.16701 8.34129 9.16701C6.63747 9.16701 5.25626 7.76603 5.25626 6.03783C5.25626 4.30963 6.63747 2.90865 8.34129 2.90865ZM8.34129 4.0821C7.27641 4.0821 6.41315 4.95771 6.41315 6.03783C6.41315 7.11795 7.27641 7.99357 8.34129 7.99357C9.40618 7.99357 10.2694 7.11795 10.2694 6.03783C10.2694 4.95771 9.40618 4.0821 8.34129 4.0821ZM8.34129 0.167007C11.8995 0.167007 14.9711 2.63124 15.8234 6.08458C15.9009 6.39892 15.7126 6.71753 15.4027 6.79622C15.0928 6.8749 14.7787 6.68387 14.7011 6.36953C13.977 3.4354 11.3657 1.34045 8.34129 1.34045C5.31559 1.34045 2.70346 3.4372 1.98061 6.37306C1.9032 6.68744 1.58919 6.87865 1.27925 6.80014C0.9693 6.72163 0.780788 6.40312 0.858193 6.08874C1.70896 2.63336 4.78153 0.167007 8.34129 0.167007Z" fill="white"/>
+              </svg>
+            </button>
+          </div>
+          
+          
+          <div class="card-logo">
+            <img class="logo" src="visa.svg" alt="VISA" height="32">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
