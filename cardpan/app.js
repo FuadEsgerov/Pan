@@ -35,6 +35,12 @@ function closeCard() {
     return true;
  }
 }
+document.getElementById("closeBtn").onclick = function() {
+    if (window.flutter_inappwebview) {
+        window.flutter_inappwebview.callHandler('closeWebView');
+    }
+};
+
 function showToast(message = "Kopyalandı") {
   const toast = document.getElementById("toast");
   toast.textContent = message;
