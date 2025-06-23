@@ -30,4 +30,5 @@ function toggleCVV() {
 
 function closeCard() {
   document.querySelector('.credit-card-modal').style.display = 'none';
+  window.close();
 }
