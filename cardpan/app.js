@@ -1,6 +1,7 @@
 function copyText(elementId) {
   const text = document.getElementById(elementId).innerText;
   navigator.clipboard.writeText(text);
+  showToast("Kopyalandı");
 }
 
 
@@ -30,5 +31,15 @@ function toggleCVV() {
 
 function closeCard() {
   document.querySelector('.credit-card-modal').style.display = 'none';
-  window.close();
+  window.onbeforeunload = function(evt) {
+    return true;
+ }
+}
+function showToast(message = "Kopyalandı") {
+  const toast = document.getElementById("toast");
+  toast.textContent = message;
+  toast.classList.add("show");
+  setTimeout(() => {
+    toast.classList.remove("show");
+  }, 1700); // Hide after 1.7 seconds
 }
