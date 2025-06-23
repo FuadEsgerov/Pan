@@ -80,9 +80,6 @@ body {
   line-height: 1;
   transition: color 0.12s;
 }
-.close-btn:hover {
-  color: #19e5a7;
-}
 
 .card-content {
   width: 94%;
@@ -121,9 +118,7 @@ body {
   opacity: 0.87;
   transition: opacity 0.13s;
 }
-.copy-btn:hover {
-  opacity: 1;
-}
+
 .copy-btn svg {
   vertical-align: middle;
 }
@@ -198,6 +193,34 @@ body {
 .card-logo .logo {
   width: 37px;
   height: 12px;
+}
+.toast {
+  position: fixed;
+  top: 28px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-40px); /* start hidden above */
+  background: #2dc071;
+  color: #fff;
+  padding: 13px 0;
+  width: 90vw;
+  max-width: 400px;
+  border-radius: 12px;
+  font-family: "SF Pro Display", "Inter", Arial, sans-serif;
+  font-weight: 600;
+  font-size: 18px;
+  text-align: center;
+  letter-spacing: 0.3px;
+  z-index: 9999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s, transform 0.4s cubic-bezier(.33,1.41,.64,1), top 0.3s;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.09);
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0); /* slide in */
+  pointer-events: auto;
 }
 
 @media (max-width: 400px) {
