@@ -1,6 +1,8 @@
-// app.js — drop-in replacement / full script for your page
+// app.js — full drop-in script
 
-// ----- UI helper: toast -----
+/***********************
+ * Toast (UI helper)
+ ***********************/
 function showToast(message = "Kopyalandı") {
   const toast = document.getElementById("toast");
   if (!toast) return;
@@ -12,36 +14,43 @@ function showToast(message = "Kopyalandı") {
   }, 1700);
 }
 
-// ----- copy text helper -----
+/***********************
+ * Copy helper
+ ***********************/
 function copyText(elementId) {
   const el = document.getElementById(elementId);
   if (!el) return;
   const text = el.innerText || el.textContent || "";
   if (!navigator.clipboard) {
-    // fallback
     const textarea = document.createElement("textarea");
     textarea.value = text;
     textarea.style.position = "fixed";
     textarea.style.left = "-9999px";
     document.body.appendChild(textarea);
     textarea.select();
-    try { document.execCommand('copy'); showToast("Kopyalandı"); } catch (e) { showToast("Kopyalama uğursuz oldu"); }
+    try {
+      document.execCommand("copy");
+      showToast("Kopyalandı");
+    } catch (e) {
+      showToast("Kopyalama uğursuz oldu");
+    }
     document.body.removeChild(textarea);
     return;
   }
-  navigator.clipboard.writeText(text).then(() => {
-    showToast("Kopyalandı");
-  }).catch(() => {
-    showToast("Kopyalama uğursuz oldu");
-  });
+  navigator.clipboard
+    .writeText(text)
+    .then(() => showToast("Kopyalandı"))
+    .catch(() => showToast("Kopyalama uğursuz oldu"));
 }
 
-// ----- CVV show/hide and icon toggle -----
+/***********************
+ * CVV toggle + eye icon
+ ***********************/
 let cvvVisible = false;
-let realCVV = "123"; // default, will be overwritten by server response if available.
+let realCVV = "123"; // will be overwritten by server response
 
 function setEyeIcon(open) {
-  const eyeIcon = document.getElementById('eyeIcon');
+  const eyeIcon = document.getElementById("eyeIcon");
   if (!eyeIcon) return;
   if (open) {
     // eye open
@@ -59,37 +68,37 @@ function setEyeIcon(open) {
 
 function toggleCVV() {
   cvvVisible = !cvvVisible;
-  document.getElementById('cvvLabel').textContent = (cvvVisible ? realCVV : "CVV");
+  const cvvLabel = document.getElementById("cvvLabel");
+  if (cvvLabel) cvvLabel.textContent = cvvVisible ? realCVV : "CVV";
   setEyeIcon(cvvVisible);
 }
 
-// attach toggle handler on the cvv eye button (safe even if included twice)
-document.addEventListener('click', function (e) {
+// Delegate click for CVV eye button
+document.addEventListener("click", function (e) {
   const t = e.target;
-  if (!t) return;
-  // look for element with class cvv-eye or the svg inside
-  if (t.closest && t.closest('.cvv-eye')) {
+  if (t && t.closest && t.closest(".cvv-eye")) {
     e.preventDefault();
     toggleCVV();
   }
 });
 
-// ----- close card behavior -----
+/***********************
+ * Close card behavior
+ ***********************/
 function closeCard() {
-  const modal = document.querySelector('.credit-card-modal');
-  if (modal) modal.style.display = 'none';
-  window.onbeforeunload = function(evt) {
+  const modal = document.querySelector(".credit-card-modal");
+  if (modal) modal.style.display = "none";
+  window.onbeforeunload = function () {
     return true;
   };
 }
 
-// support for flutter inappwebview handler if present
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener("DOMContentLoaded", () => {
   const closeBtn = document.getElementById("closeBtn");
   if (closeBtn) {
-    closeBtn.onclick = function() {
+    closeBtn.onclick = function () {
       if (window.flutter_inappwebview) {
-        window.flutter_inappwebview.callHandler('closeWebView');
+        window.flutter_inappwebview.callHandler("closeWebView");
       } else {
         closeCard();
       }
@@ -97,83 +106,128 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-// ----- populate fields safely -----
+/***********************
+ * Populate fields
+ ***********************/
 function populateCardFields(data) {
-  // Accept data with keys like cardNumber, expireDate, cvv
   if (!data) return;
-  const cardNumberEl = document.getElementById('cardNumber');
-  const cardExpiryEl = document.getElementById('cardExpiry');
-  const cvvLabelEl = document.getElementById('cvvLabel');
+  const cardNumberEl = document.getElementById("cardNumber");
+  const cardExpiryEl = document.getElementById("cardExpiry");
+  const cvvLabelEl = document.getElementById("cvvLabel");
 
   if (data.cardNumber && cardNumberEl) {
-    // Format: optionally split into groups of 4 to match your UI (the UI already shows groups)
-    const digits = String(data.cardNumber).replace(/\D/g,'');
-    const grouped = digits.replace(/(.{4})/g, '$1 ').trim();
+    const digits = String(data.cardNumber).replace(/\D/g, "");
+    const grouped = digits.replace(/(.{4})/g, "$1 ").trim();
     cardNumberEl.textContent = grouped || cardNumberEl.textContent;
   }
 
-  if ((data.expireDate || data.expiry || data.expire || data.expiration) && cardExpiryEl) {
-    const exp = data.expireDate || data.expiry || data.expire || data.expiration;
+  const exp = data.expireDate || data.expiry || data.expire || data.expiration;
+  if (exp && cardExpiryEl) {
     cardExpiryEl.textContent = String(exp);
   }
 
   if (data.cvv && cvvLabelEl) {
     realCVV = String(data.cvv);
-    // If CVV is visible currently, show it immediately
     cvvLabelEl.textContent = cvvVisible ? realCVV : "CVV";
   }
 }
 
-// ----- fetch card from backend -----
-// this function calls the provided API and populates the UI.
-async function fetchAndPopulateCard() {
-  const url = 'https://cards-pci-api.bankofbaku.com/generate/396296965';
-  showToast("Kart alınır..."); // "Fetching card..."
+/***********************
+ * Extract card id from URL
+ * Supports: https://cards-pci.bankofbaku.com/card/396296965
+ * Also falls back to ?id=... if needed.
+ ***********************/
+function extractCardId() {
+  // Path style: /card/396296965
+  const m = window.location.pathname.match(/\/card\/(\d+)/i);
+  if (m && m[1]) return m[1];
+
+  // Query style: ?id=396296965 (fallback)
+  const p = new URLSearchParams(window.location.search);
+  const q = p.get("id");
+  if (q && /^\d+$/.test(q)) return q;
+
+  return null;
+}
+
+/***********************
+ * Fetch helper with timeout
+ ***********************/
+async function fetchWithTimeout(resource, options = {}) {
+  const { timeout = 12000, ...rest } = options;
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeout);
   try {
-    const resp = await fetch(url, {
-      method: 'POST',
+    const response = await fetch(resource, { ...rest, signal: controller.signal });
+    return response;
+  } finally {
+    clearTimeout(id);
+  }
+}
+
+/***********************
+ * Fetch card from API
+ ***********************/
+async function fetchAndPopulateCard() {
+  const id = extractCardId();
+  if (!id) {
+    console.warn("Card id not found in URL. Expected /card/:id or ?id=...");
+    showToast("Kart ID tapılmadı");
+    return;
+  }
+
+  const url = `https://cards-pci-api.bankofbaku.com/generate/${id}`;
+
+  try {
+    const resp = await fetchWithTimeout(url, {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json'
-        // Add auth headers here if required, e.g. 'Authorization': 'Bearer ...'
+        "Content-Type": "application/json"
+        // If your API needs auth headers, add here (e.g. Authorization)
       },
-      // If backend expects a body, add it here. Example: body: JSON.stringify({ client: 'web' })
-      body: null
+      // If backend expects a body, add it here:
+      // body: JSON.stringify({ client: "web" }),
+      // If API uses cookies, uncomment the next line and ensure CORS is configured with credentials:
+      // credentials: "include",
+      timeout: 12000
     });
 
     if (!resp.ok) {
-      // backend returned 4xx/5xx
-      console.error('Card API returned non-OK:', resp.status, resp.statusText);
-      showToast("Server xətası: Kart alınmadı");
+      console.error("Card API non-OK:", resp.status, resp.statusText);
+      showToast("Zəhmət olmasa bir qədər sonra yenidən cəhd edəsiniz!");
       return;
     }
 
-    // parse json
-    const json = await resp.json();
-    // Example response: { cardNumber: 5315992149477058, expireDate: "12/25", cvv: "333" }
+    const json = await resp.json(); // { cardNumber, expireDate, cvv }
     populateCardFields(json);
-    showToast("Kart uğurla alındı");
   } catch (err) {
-    console.error('Error fetching card:', err);
-    // Detect possible CORS error hint
-    const msg = String(err).toLowerCase();
-    if (msg.includes('cors') || msg.includes('access-control')) {
-      showToast("CORS xətası — server origin icazə vermir");
-      console.warn('If you see a CORS error, your browser blocked the request. You must enable CORS on the server or use a backend proxy.');
+    console.error("Error fetching card:", err);
+    const msg = String(err && err.message ? err.message : err).toLowerCase();
+    if (msg.includes("abort")) {
+      showToast("Zəhmət olmasa bir qədər sonra yenidən cəhd edəsiniz!");
+    } else if (msg.includes("cors") || msg.includes("access-control")) {
+      showToast("CORS xətası — server icazə vermir");
     } else {
       showToast("Şəbəkə xətası — yoxlayın");
     }
   }
 }
 
-// ----- auto-run on load -----
-// Attempt to fetch card automatically when page loads.
-// If you prefer to trigger with a button, call fetchAndPopulateCard() from that button instead.
-document.addEventListener('DOMContentLoaded', function () {
-  // Small delay so UI is already visible
+/***********************
+ * Auto-run on load
+ ***********************/
+document.addEventListener("DOMContentLoaded", function () {
+  // ensure CVV starts hidden with correct icon
+  cvvVisible = false;
+  setEyeIcon(false);
+
+  // small delay for UI paint
   setTimeout(fetchAndPopulateCard, 250);
 });
 
-// Expose function globally (in case you want to call it from console or other script)
+/***********************
+ * Expose globals (optional)
+ ***********************/
 window.fetchAndPopulateCard = fetchAndPopulateCard;
 window.copyText = copyText;
 window.toggleCVV = toggleCVV;
