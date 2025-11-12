@@ -1,4 +1,4 @@
-// app.js — full drop-in script
+// app.js — fixed
 
 /***********************
  * Toast (UI helper)
@@ -28,17 +28,12 @@ function copyText(elementId) {
     textarea.style.left = "-9999px";
     document.body.appendChild(textarea);
     textarea.select();
-    try {
-      document.execCommand("copy");
-      showToast("Kopyalandı");
-    } catch (e) {
-      showToast("Kopyalama uğursuz oldu");
-    }
+    try { document.execCommand("copy"); showToast("Kopyalandı"); }
+    catch { showToast("Kopyalama uğursuz oldu"); }
     document.body.removeChild(textarea);
     return;
   }
-  navigator.clipboard
-    .writeText(text)
+  navigator.clipboard.writeText(text)
     .then(() => showToast("Kopyalandı"))
     .catch(() => showToast("Kopyalama uğursuz oldu"));
 }
@@ -73,24 +68,13 @@ function toggleCVV() {
   setEyeIcon(cvvVisible);
 }
 
-// Delegate click for CVV eye button
-document.addEventListener("click", function (e) {
-  const t = e.target;
-  if (t && t.closest && t.closest(".cvv-eye")) {
-    e.preventDefault();
-    toggleCVV();
-  }
-});
-
 /***********************
  * Close card behavior
  ***********************/
 function closeCard() {
   const modal = document.querySelector(".credit-card-modal");
   if (modal) modal.style.display = "none";
-  window.onbeforeunload = function () {
-    return true;
-  };
+  window.onbeforeunload = function () { return true; };
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -134,15 +118,11 @@ function populateCardFields(data) {
 
 /***********************
  * Extract card id from URL
- * Supports: https://cards-pci.bankofbaku.com/card/396296965
- * Also falls back to ?id=... if needed.
  ***********************/
 function extractCardId() {
-  // Path style: /card/396296965
   const m = window.location.pathname.match(/\/card\/(\d+)/i);
   if (m && m[1]) return m[1];
 
-  // Query style: ?id=396296965 (fallback)
   const p = new URLSearchParams(window.location.search);
   const q = p.get("id");
   if (q && /^\d+$/.test(q)) return q;
@@ -183,12 +163,7 @@ async function fetchAndPopulateCard() {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
-        // If your API needs auth headers, add here (e.g. Authorization)
       },
-      // If backend expects a body, add it here:
-      // body: JSON.stringify({ client: "web" }),
-      // If API uses cookies, uncomment the next line and ensure CORS is configured with credentials:
-      // credentials: "include",
       timeout: 12000
     });
 
@@ -217,11 +192,8 @@ async function fetchAndPopulateCard() {
  * Auto-run on load
  ***********************/
 document.addEventListener("DOMContentLoaded", function () {
-  // ensure CVV starts hidden with correct icon
   cvvVisible = false;
   setEyeIcon(false);
-
-  // small delay for UI paint
   setTimeout(fetchAndPopulateCard, 250);
 });
 
