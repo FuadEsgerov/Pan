@@ -1,19 +1,19 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>Credit Card UI</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <link rel="stylesheet" href="styles.css">
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+  <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-  <img src="background.jpg" class="bg-image" />
+  <img src="/background.jpg" class="bg-image" />
   <div class="credit-card-modal">
     <div class="credit-card">
       <button id="closeBtn" class="close-btn" onclick="closeCard()">&times;</button>
       <div class="card-content">
         <div class="card-number-row">
-          <span  id="cardNumber" class="card-number" onclick="copyText('cardNumber')">4704 1111 2222 1233</span>
+          <span  id="cardNumber" class="card-number" onclick="copyText('cardNumber')">**** **** **** ****</span>
           <button class="copy-btn" onclick="copyText('cardNumber')" title="Copy card number">
             <svg width="10" height="12" viewBox="0 0 10 12" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M7.8846 9.8096H7.11537V10.5642H0.769229V2.82976H1.53846V2.07519H0V11.3188H7.8846V9.8096Z" fill="white"/>
@@ -23,7 +23,7 @@
         </div>
         <div class="card-bottom-row">
           <div class="card-expiry">
-            <span id="cardExpiry">09/24</span>
+            <span id="cardExpiry">00/00</span>
             <button class="copy-btn" onclick="copyText('cardExpiry')" title="Copy expiry">
               <svg width="10" height="12" viewBox="0 0 10 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M7.8846 9.8096H7.11537V10.5642H0.769229V2.82976H1.53846V2.07519H0V11.3188H7.8846V9.8096Z" fill="white"/>
@@ -42,7 +42,7 @@
           
           
           <div class="card-logo">
-            <img class="logo" src="visa.svg" alt="VISA" height="32">
+            <img class="logo" src="/visa.svg" alt="VISA" height="32">
           </div>
         </div>
       </div>
@@ -50,6 +50,6 @@
   </div>
   <div id="toast" class="toast">Kopyalandı</div>
 
-  <script src="app.js"></script>
+  <script src="/app.js"></script>
 </body>
 </html>
