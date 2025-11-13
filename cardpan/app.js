@@ -170,6 +170,13 @@ async function fetchAndPopulateCard() {
   const id = extractCardId();
   if (!id) {
     showToast("Kart ID tapılmadı");
+      showToast("salam");
+  cvvVisible = false;
+  setEyeIcon(false);
+  setTimeout(fetchAndPopulateCard, 250);
+
+  // 🔹 burda Flutter header-ini al
+  initFlutterHeaderBridge();
     return;
   }
 
@@ -237,16 +244,7 @@ function initFlutterHeaderBridge() {
   }
 }
 
-document.addEventListener("DOMContentLoaded", function () {
-  // sənin mövcud kodların
-  showToast("salam");
-  cvvVisible = false;
-  setEyeIcon(false);
-  setTimeout(fetchAndPopulateCard, 250);
 
-  // 🔹 burda Flutter header-ini al
-  initFlutterHeaderBridge();
-});
 
 /***********************
  * Expose globals (optional)
