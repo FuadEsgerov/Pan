@@ -98,18 +98,36 @@ function populateCardFields(data) {
   const cardNumberEl = document.getElementById("cardNumber");
   const cardExpiryEl = document.getElementById("cardExpiry");
   const cvvLabelEl = document.getElementById("cvvLabel");
+  const cardLogoEl = document.querySelector(".card-logo img");
 
+  // ---- Card number ----
   if (data.cardNumber && cardNumberEl) {
     const digits = String(data.cardNumber).replace(/\D/g, "");
     const grouped = digits.replace(/(.{4})/g, "$1 ").trim();
     cardNumberEl.textContent = grouped || cardNumberEl.textContent;
+
+    // Detect brand from first digit(s)
+    if (cardLogoEl) {
+      if (digits.startsWith("4")) {
+        cardLogoEl.src = "/visa.svg";
+        cardLogoEl.alt = "VISA";
+      } else if (digits.startsWith("5")) {
+        cardLogoEl.src = "/master.svg";
+        cardLogoEl.alt = "MasterCard";
+      } else {
+        cardLogoEl.src = "/card-default.svg"; // optional fallback
+        cardLogoEl.alt = "Card";
+      }
+    }
   }
 
+  // ---- Expiry ----
   const exp = data.expireDate || data.expiry || data.expire || data.expiration;
   if (exp && cardExpiryEl) {
     cardExpiryEl.textContent = String(exp);
   }
 
+  // ---- CVV ----
   if (data.cvv && cvvLabelEl) {
     realCVV = String(data.cvv);
     cvvLabelEl.textContent = cvvVisible ? realCVV : "CVV";
@@ -151,7 +169,6 @@ async function fetchWithTimeout(resource, options = {}) {
 async function fetchAndPopulateCard() {
   const id = extractCardId();
   if (!id) {
-    console.warn("Card id not found in URL. Expected /card/:id or ?id=...");
     showToast("Kart ID tapılmadı");
     return;
   }
@@ -168,7 +185,6 @@ async function fetchAndPopulateCard() {
     });
 
     if (!resp.ok) {
-      console.error("Card API non-OK:", resp.status, resp.statusText);
       showToast("Zəhmət olmasa bir qədər sonra yenidən cəhd edəsiniz!");
       return;
     }
@@ -176,7 +192,6 @@ async function fetchAndPopulateCard() {
     const json = await resp.json(); // { cardNumber, expireDate, cvv }
     populateCardFields(json);
   } catch (err) {
-    console.error("Error fetching card:", err);
     const msg = String(err && err.message ? err.message : err).toLowerCase();
     if (msg.includes("abort")) {
       showToast("Zəhmət olmasa bir qədər sonra yenidən cəhd edəsiniz!");
