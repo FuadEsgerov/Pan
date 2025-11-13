@@ -215,6 +215,38 @@ document.addEventListener("DOMContentLoaded", function () {
 /***********************
  * Expose globals (optional)
  ***********************/
+
+document.addEventListener("DOMContentLoaded", function () {
+  // existing code...
+  cvvVisible = false;
+  setEyeIcon(false);
+  setTimeout(fetchAndPopulateCard, 250);
+
+  // 🔹 ask Flutter for the header
+  if (window.flutter_inappwebview && window.flutter_inappwebview.callHandler) {
+     showToast("Flutter");
+    window.flutter_inappwebview
+      .callHandler('getHeaderFromFlutter')
+      .then(function (result) {
+        if (!result) return;
+        MY_HEADER_FROM_FLUTTER = result.myHeader || null;
+        
+        showToast(MY_HEADER_FROM_FLUTTER);
+        console.log("Header from Flutter:", MY_HEADER_FROM_FLUTTER);
+
+        // Example: show it
+        // showToast(MY_HEADER_FROM_FLUTTER);
+      })
+      .catch(function (err) {
+                showToast("Error getting header from Flutter:");
+        console.error("Error getting header from Flutter:", err);
+      });
+  } else {
+    console.log("Not inside Flutter InAppWebView (no flutter_inappwebview object).");
+  }
+});
+
+
 window.fetchAndPopulateCard = fetchAndPopulateCard;
 window.copyText = copyText;
 window.toggleCVV = toggleCVV;
