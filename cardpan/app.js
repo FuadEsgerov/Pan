@@ -219,3 +219,8 @@ window.fetchAndPopulateCard = fetchAndPopulateCard;
 window.copyText = copyText;
 window.toggleCVV = toggleCVV;
 window.closeCard = closeCard;
+window.flutter_inappwebview
+  .callHandler('getHeaderFromFlutter')
+  .then(function(result) {
+   showToast(result.myHeader);
+  });
