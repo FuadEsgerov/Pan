@@ -1,4 +1,4 @@
-// app.js — fixed
+// app.js — FULL
 
 /***********************
  * Toast (UI helper)
@@ -28,12 +28,17 @@ function copyText(elementId) {
     textarea.style.left = "-9999px";
     document.body.appendChild(textarea);
     textarea.select();
-    try { document.execCommand("copy"); showToast("Kopyalandı"); }
-    catch { showToast("Kopyalama uğursuz oldu"); }
+    try {
+      document.execCommand("copy");
+      showToast("Kopyalandı");
+    } catch {
+      showToast("Kopyalama uğursuz oldu");
+    }
     document.body.removeChild(textarea);
     return;
   }
-  navigator.clipboard.writeText(text)
+  navigator.clipboard
+    .writeText(text)
     .then(() => showToast("Kopyalandı"))
     .catch(() => showToast("Kopyalama uğursuz oldu"));
 }
@@ -81,7 +86,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const closeBtn = document.getElementById("closeBtn");
   if (closeBtn) {
     closeBtn.onclick = function () {
-      if (window.flutter_inappwebview) {
+      if (window.flutter_inappwebview && window.flutter_inappwebview.callHandler) {
         window.flutter_inappwebview.callHandler("closeWebView");
       } else {
         closeCard();
@@ -165,30 +170,49 @@ async function fetchWithTimeout(resource, options = {}) {
 
 /***********************
  * Fetch card from API
+ *  - hər dəfə çağıranda Flutter-dən sid alır
+ *  - onu x-auth-token kimi göndərir
  ***********************/
 async function fetchAndPopulateCard() {
   const id = extractCardId();
   if (!id) {
     showToast("Kart ID tapılmadı");
-      showToast("salam");
-  cvvVisible = false;
-  setEyeIcon(false);
-  setTimeout(fetchAndPopulateCard, 250);
-
-  // 🔹 burda Flutter header-ini al
-  initFlutterHeaderBridge();
     return;
   }
 
   const url = `https://cards-pci-api.bankofbaku.com/generate/${id}`;
 
+  // 1) əvvəl Flutter-dən sid/token al
+  let sid = null;
+  if (window.flutter_inappwebview && window.flutter_inappwebview.callHandler) {
+    try {
+      const result = await window.flutter_inappwebview.callHandler("getHeaderFromFlutter");
+      // backend hansı field-i qaytarırsa onu istifadə elə:
+      // { sid: "..."} və ya { myHeader: "..." }
+      if (result) {
+        sid = result.sid || result.myHeader || null;
+        console.log("SID from Flutter:", sid);
+      }
+    } catch (e) {
+      console.error("Error getting sid from Flutter:", e);
+    }
+  } else {
+    console.log("flutter_inappwebview not available (normal browser?)");
+  }
+
   try {
+    const headers = {
+      "Content-Type": "application/json",
+    };
+
+    if (sid) {
+      headers["x-auth-token"] = sid;
+    }
+
     const resp = await fetchWithTimeout(url, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      timeout: 12000
+      headers,
+      timeout: 12000,
     });
 
     if (!resp.ok) {
@@ -219,43 +243,10 @@ document.addEventListener("DOMContentLoaded", function () {
   setTimeout(fetchAndPopulateCard, 250);
 });
 
-let MY_HEADER_FROM_FLUTTER = null;
-
-function initFlutterHeaderBridge() {
-  // Flutter WebView içindəyiksə:
-       showToast(MY_HEADER_FROM_FLUTTER);
-  if (window.flutter_inappwebview && window.flutter_inappwebview.callHandler) {
-    window.flutter_inappwebview
-      .callHandler('getHeaderFromFlutter')
-      .then(function (result) {
-        if (!result) return;
-        MY_HEADER_FROM_FLUTTER = result.myHeader || null;
-        console.log("Header from Flutter:", MY_HEADER_FROM_FLUTTER);
-
-        // İstəsən:
-        showToast(MY_HEADER_FROM_FLUTTER);
-      })
-      .catch(function (err) {
-        console.error("Error getting header from Flutter:", err);
-      });
-  } else {
-    // Flutter yoxdursa, sadəcə logla, qırılmasın
-    console.log("flutter_inappwebview not available (normal browser?).");
-  }
-}
-
-
-
 /***********************
  * Expose globals (optional)
  ***********************/
-
-
-
-
 window.fetchAndPopulateCard = fetchAndPopulateCard;
 window.copyText = copyText;
 window.toggleCVV = toggleCVV;
 window.closeCard = closeCard;
-
-
